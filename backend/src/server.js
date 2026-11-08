@@ -53,12 +53,37 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/services", serviceRoutes);
 
-// Health check API for Render monitoring
-app.get("/api/health", (req, res) => {
+// Health check API for Render monitoring & live DB diagnostics
+app.get("/api/health", async (req, res) => {
+  let dbStatus = "connected";
+  let dbError = null;
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+  } catch (err) {
+    dbStatus = "disconnected";
+    dbError = err.message;
+  }
+
+  let configuredHost = "not set";
+  if (process.env.DATABASE_URL) {
+    try {
+      configuredHost = new URL(process.env.DATABASE_URL).hostname;
+    } catch {
+      configuredHost = "DATABASE_URL parse error";
+    }
+  } else if (process.env.DB_HOST) {
+    configuredHost = process.env.DB_HOST;
+  }
+
   res.json({
     success: true,
     message: "API is working",
     service: "OM ENTERPRISES Backend",
+    database: {
+      status: dbStatus,
+      configuredHost: configuredHost,
+      error: dbError,
+    },
     timestamp: new Date().toISOString(),
   });
 });

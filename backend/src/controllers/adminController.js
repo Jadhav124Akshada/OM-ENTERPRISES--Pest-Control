@@ -64,7 +64,7 @@ export const adminLogin = async (req, res) => {
         console.error("Admin login error:", error);
 
         return res.status(500).json({
-            message: "Something went wrong"
+            message: error.message ? `Login failed: ${error.message}` : "Something went wrong"
         });
     }
 };
