@@ -72,28 +72,32 @@ app.get("*", (req, res, next) => {
   });
 });
 
-// Server configuration
+// Server configuration - Render automatically supplies PORT in process.env.PORT
 const PORT = process.env.PORT || 5000;
 
-// Start server
-const startServer = async () => {
-  await connectDB();
-
-  // Try auto-seeding if database has zero services
-  try {
-    const serviceCount = await prisma.service.count();
-    if (serviceCount === 0) {
-      console.log("Empty database detected. Seeding initial Om Enterprises services and accounts...");
-      const { seedData } = await import("./seed.js");
-      await seedData(false);
-    }
-  } catch (err) {
-    console.log("Database seed check notice:", err.message);
-  }
-
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+// Start server immediately so Render's health check succeeds in <1 second
+const startServer = () => {
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`OM ENTERPRISES Backend running on port ${PORT}`);
   });
+
+  // Connect database in background so it never blocks or delays Render startup
+  connectDB()
+    .then(async () => {
+      try {
+        const serviceCount = await prisma.service.count();
+        if (serviceCount === 0) {
+          console.log("Empty database detected. Seeding initial Om Enterprises services and accounts...");
+          const { seedData } = await import("./seed.js");
+          await seedData(false);
+        }
+      } catch (err) {
+        console.log("Database seed check notice:", err.message);
+      }
+    })
+    .catch((err) => {
+      console.warn("Background DB connection warning:", err.message);
+    });
 };
 
 startServer();
