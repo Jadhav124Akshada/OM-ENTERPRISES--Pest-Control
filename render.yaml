@@ -39,8 +39,6 @@ services:
   - type: web
     name: om-enterprises-frontend
     runtime: static
-    plan: free
-    region: oregon
     rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: dist
@@ -54,4 +52,3 @@ services:
           type: web
           name: om-enterprises-backend
           envVarKey: RENDER_EXTERNAL_URL
-          transform: "${RENDER_EXTERNAL_URL}/api"
