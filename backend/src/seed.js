@@ -2,7 +2,7 @@ import "dotenv/config";
 import bcrypt from "bcryptjs";
 import { prisma } from "./config/db.js";
 
-const seed = async () => {
+export const seedData = async (shouldDisconnect = false) => {
   try {
     console.log("Starting database seeding for Om Enterprises...");
 
@@ -103,25 +103,52 @@ const seed = async () => {
           customerType: "DOMESTIC",
         },
       });
+      console.log(`✓ Sample customer created: ${samplePhone} (Password: Password@123)`);
 
-      await prisma.customerAddress.create({
+      // Seed Address for Customer
+      const address = await prisma.customerAddress.create({
         data: {
           customerId: customer.customerId,
-          address: "Flat 102, Gokul Heights, Paud Road, Kothrud, Pune - 411038",
+          address: "Flat 402, Shree Jyotirling Apt, Sector 19, New Panvel, Navi Mumbai - 410206",
         },
       });
 
-      console.log(`✓ Sample customer created: ${samplePhone} (Password: Password@123)`);
+      // Seed Initial Booking
+      const termService = await prisma.service.findFirst({
+        where: { serviceName: "Anti-Termite Treatment" },
+      });
+
+      if (termService) {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 2);
+
+        await prisma.booking.create({
+          data: {
+            customerId: customer.customerId,
+            serviceId: termService.serviceId,
+            addressId: address.addressId,
+            bookingDate: tomorrow,
+            price: termService.price,
+            status: "CONFIRMED",
+          },
+        });
+        console.log("✓ Sample booking created (Status: CONFIRMED)");
+      }
     } else {
       console.log(`✓ Sample customer already exists: ${samplePhone}`);
     }
 
-    console.log("\nDatabase seeding completed successfully!");
+    console.log("Database seeding finished successfully.");
   } catch (error) {
-    console.error("Seeding error:", error);
+    console.error("Seeding error:", error.message);
   } finally {
-    await prisma.$disconnect();
+    if (shouldDisconnect) {
+      await prisma.$disconnect();
+    }
   }
 };
 
-seed();
+// Run standalone if executed directly
+if (process.argv[1] && process.argv[1].endsWith("seed.js")) {
+  seedData(true);
+}
