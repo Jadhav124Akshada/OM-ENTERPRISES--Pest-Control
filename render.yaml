@@ -1,6 +1,6 @@
 services:
   # ----------------------------------------------------
-  # 1. Backend REST API Web Service
+  # Om Enterprises Backend REST API Web Service
   # ----------------------------------------------------
   - type: web
     name: om-enterprises-backend
@@ -23,32 +23,12 @@ services:
       - key: DATABASE_URL
         sync: false
       - key: DB_HOST
-        sync: false
+        value: gateway01.ap-northeast-1.prod.aws.tidbcloud.com
       - key: DB_PORT
-        value: 3306
+        value: 4000
       - key: DB_USER
         sync: false
       - key: DB_PASSWORD
         sync: false
       - key: DB_NAME
-        sync: false
-
-  # ----------------------------------------------------
-  # 2. Frontend React 19 Single Page Application
-  # ----------------------------------------------------
-  - type: web
-    name: om-enterprises-frontend
-    runtime: static
-    rootDir: frontend
-    buildCommand: npm install && npm run build
-    staticPublishPath: dist
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
-    envVars:
-      - key: VITE_API_URL
-        fromService:
-          type: web
-          name: om-enterprises-backend
-          envVarKey: RENDER_EXTERNAL_URL
+        value: test

@@ -18,8 +18,20 @@ const frontendDistPath = path.resolve(__dirname, "../public");
 
 const app = express();
 
-// Middleware
-app.use(cors());
+// CORS: Allow requests from Vercel deployments, localhost, and custom domains
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, curl, Postman)
+      if (!origin) return callback(null, true);
+      // Allow all origins (including any .vercel.app domain, custom domain, localhost)
+      return callback(null, true);
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Cache-Control", "Accept"],
+  })
+);
 app.use(express.json());
 
 // Disable HTTP caching for all dynamic API responses so changes reflect immediately without stale cache

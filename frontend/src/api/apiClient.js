@@ -1,11 +1,19 @@
 import axios from 'axios';
 
 // Get base URL from environment variable or default intelligently:
-// In production without an explicit VITE_API_URL, use relative '/api' for same-origin backend hosting.
-// In local development, fall back to 'http://localhost:5000/api'.
+// 1. If VITE_API_URL is explicitly set, use it.
+// 2. If running on Vercel and VITE_API_URL is missing, connect directly to the Render backend API.
+// 3. In production on the same host (Render full-stack), use relative '/api'.
+// 4. In local development, fall back to 'http://localhost:5000/api'.
 let apiBaseUrl = import.meta.env.VITE_API_URL;
 if (!apiBaseUrl) {
-  apiBaseUrl = import.meta.env.PROD ? '/api' : 'http://localhost:5000/api';
+  if (typeof window !== 'undefined' && window.location.hostname.includes('vercel.app')) {
+    apiBaseUrl = 'https://om-enterprises-backend-azk7.onrender.com/api';
+  } else if (import.meta.env.PROD) {
+    apiBaseUrl = '/api';
+  } else {
+    apiBaseUrl = 'http://localhost:5000/api';
+  }
 }
 
 // Normalize: ensure it ends with /api
