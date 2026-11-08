@@ -21,14 +21,14 @@ services:
       - key: JWT_EXPIRES_IN
         value: 1d
       - key: DATABASE_URL
-        sync: false
+        value: mysql://48kDNN3vvieGiCA.root:Au3ATRtyyReSD1VN@gateway01.ap-northeast-1.prod.aws.tidbcloud.com:4000/test?ssl={"rejectUnauthorized":false}
       - key: DB_HOST
         value: gateway01.ap-northeast-1.prod.aws.tidbcloud.com
       - key: DB_PORT
         value: 4000
       - key: DB_USER
-        sync: false
+        value: 48kDNN3vvieGiCA.root
       - key: DB_PASSWORD
-        sync: false
+        value: Au3ATRtyyReSD1VN
       - key: DB_NAME
         value: test

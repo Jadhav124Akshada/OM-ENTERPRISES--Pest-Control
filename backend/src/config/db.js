@@ -3,24 +3,38 @@ import "dotenv/config";
 import { PrismaClient } from "../../generated/prisma/client.ts";
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 
-let dbConfig = {
-  host: process.env.DB_HOST || "localhost",
-  port: Number(process.env.DB_PORT) || 3306,
-  user: process.env.DB_USER || "root",
-  password: process.env.DB_PASSWORD || "",
-  database: process.env.DB_NAME || "om_enterprises",
+// Default TiDB Cloud Starter credentials
+const TIDB_DEFAULTS = {
+  host: "gateway01.ap-northeast-1.prod.aws.tidbcloud.com",
+  port: 4000,
+  user: "48kDNN3vvieGiCA.root",
+  password: "Au3ATRtyyReSD1VN",
+  database: "test",
+  ssl: { rejectUnauthorized: false },
 };
 
-// If a connection string is provided (standard for cloud platforms like Render/Aiven/PlanetScale/TiDB)
-if (process.env.DATABASE_URL) {
+let dbConfig = {
+  host: process.env.DB_HOST || TIDB_DEFAULTS.host,
+  port: Number(process.env.DB_PORT) || TIDB_DEFAULTS.port,
+  user: process.env.DB_USER || TIDB_DEFAULTS.user,
+  password: process.env.DB_PASSWORD !== undefined && process.env.DB_PASSWORD !== "" ? process.env.DB_PASSWORD : TIDB_DEFAULTS.password,
+  database: process.env.DB_NAME || TIDB_DEFAULTS.database,
+  ssl: { rejectUnauthorized: false },
+};
+
+// If a connection string is provided or use default TiDB URL
+const connUrl = process.env.DATABASE_URL || `mysql://${TIDB_DEFAULTS.user}:${TIDB_DEFAULTS.password}@${TIDB_DEFAULTS.host}:${TIDB_DEFAULTS.port}/${TIDB_DEFAULTS.database}`;
+
+if (connUrl) {
   try {
-    const parsed = new URL(process.env.DATABASE_URL);
+    const parsed = new URL(connUrl);
     dbConfig = {
-      host: parsed.hostname,
+      host: parsed.hostname || TIDB_DEFAULTS.host,
       port: Number(parsed.port) || (parsed.hostname.includes("tidbcloud.com") ? 4000 : 3306),
-      user: decodeURIComponent(parsed.username || "root"),
-      password: decodeURIComponent(parsed.password || ""),
-      database: parsed.pathname.replace(/^\//, "") || "om_enterprises",
+      user: decodeURIComponent(parsed.username || TIDB_DEFAULTS.user),
+      password: decodeURIComponent(parsed.password || TIDB_DEFAULTS.password),
+      database: parsed.pathname.replace(/^\//, "") || TIDB_DEFAULTS.database,
+      ssl: { rejectUnauthorized: false },
     };
   } catch (err) {
     console.warn("Could not parse DATABASE_URL string, falling back to DB_* variables:", err.message);
@@ -29,7 +43,7 @@ if (process.env.DATABASE_URL) {
 
 // Automatically configure SSL and port 4000 if connecting to TiDB Cloud
 if (dbConfig.host && dbConfig.host.includes("tidbcloud.com")) {
-  dbConfig.ssl = { rejectUnauthorized: true };
+  dbConfig.ssl = { rejectUnauthorized: false };
   if (!dbConfig.port || dbConfig.port === 3306) {
     dbConfig.port = 4000;
   }
