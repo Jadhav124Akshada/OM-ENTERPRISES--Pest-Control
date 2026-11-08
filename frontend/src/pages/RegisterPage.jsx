@@ -96,12 +96,17 @@ const RegisterPage = () => {
 
       const res = await apiClient.post('/auth/register', payload);
 
-      if (res.data && res.data.token) {
-        setSuccessMessage('Registration successful! Logging you in...');
-        login(res.data.customer, res.data.token, 'CUSTOMER');
+      if (res.data) {
+        setSuccessMessage('Registration successful! Redirecting to login...');
+        const identifier = formData.phoneNo.trim() || formData.email.trim();
         setTimeout(() => {
-          navigate('/profile');
-        }, 800);
+          navigate('/login', {
+            state: {
+              registeredIdentifier: identifier,
+              successMsg: 'Registration successful! Please log in with your credentials.',
+            },
+          });
+        }, 1200);
       }
     } catch (err) {
       console.error('Registration error:', err);

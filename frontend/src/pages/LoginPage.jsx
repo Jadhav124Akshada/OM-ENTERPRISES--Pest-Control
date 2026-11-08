@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { Link as RouterLink, useNavigate, useLocation } from 'react-router-dom';
 import {
   Container,
   Paper,
@@ -19,17 +19,18 @@ import apiClient from '../api/apiClient';
 import { useAuth } from '../context/AuthContext';
 
 const LoginPage = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [tabIndex, setTabIndex] = useState(0); // 0 = Customer, 1 = Admin
   const [formData, setFormData] = useState({
-    identifier: '',
+    identifier: location.state?.registeredIdentifier || '',
     password: '',
   });
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState(location.state?.successMsg || '');
 
   const { login } = useAuth();
-  const navigate = useNavigate();
 
   const handleTabChange = (event, newIndex) => {
     setTabIndex(newIndex);
