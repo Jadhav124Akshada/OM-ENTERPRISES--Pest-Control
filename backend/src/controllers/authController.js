@@ -58,23 +58,10 @@ export const registerCustomer = async (req, res) => {
       },
     });
 
-    // 6. Generate JWT token
-    const token = jwt.sign(
-      {
-        customerId: customer.customerId,
-        role: "CUSTOMER",
-      },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: process.env.JWT_EXPIRES_IN || "1d",
-      }
-    );
-
-    // 7. Send response
+    // 6. Send response (do not issue auth token upon registration)
     return res.status(201).json({
       success: true,
-      message: "Customer registered successfully",
-      token,
+      message: "Customer registered successfully. Please log in with your credentials.",
       customer,
     });
 

@@ -99,6 +99,10 @@ const RegisterPage = () => {
       if (res.data) {
         setSuccessMessage('Registration successful! Redirecting to login...');
         const identifier = formData.phoneNo.trim() || formData.email.trim();
+        // Clear any previous session so user must explicitly log in
+        localStorage.removeItem('om_token');
+        localStorage.removeItem('om_user');
+        localStorage.removeItem('om_role');
         setTimeout(() => {
           navigate('/login', {
             state: {
@@ -106,7 +110,7 @@ const RegisterPage = () => {
               successMsg: 'Registration successful! Please log in with your credentials.',
             },
           });
-        }, 1200);
+        }, 1000);
       }
     } catch (err) {
       console.error('Registration error:', err);
