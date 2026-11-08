@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum CustomerType {
+  DOMESTIC
+  COMMERCIAL
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+model Customer {
+  customerId   Int          @id @default(autoincrement())
+  customerName String
+  email        String?      @unique
+  phoneNo      String       @unique
+  password     String
+  customerType CustomerType
+
+  addresses    CustomerAddress[]
+  bookings     Booking[]
+}
+
+model CustomerAddress {
+  addressId  Int      @id @default(autoincrement())
+  customerId Int
+  address    String
+
+  customer Customer  @relation(fields: [customerId], references: [customerId])
+  bookings Booking[]
+}
+
+model Service {
+  serviceId   Int      @id @default(autoincrement())
+  serviceName String   @unique
+  description String   @db.Text
+  price       Decimal  @db.Decimal(10, 2)
+  validity    Int      @default(30) // validity in days
+  isActive    Boolean  @default(true)
+  bookings Booking[]
+}
+
+model Booking {
+  bookingId   Int           @id @default(autoincrement())
+  customerId  Int
+  serviceId   Int
+  addressId   Int
+  bookingDate DateTime      @default(now())
+  completedAt DateTime?
+  expiryDate  DateTime?
+  status      BookingStatus @default(PENDING)
+  price       Decimal       @db.Decimal(10, 2)
+
+  customer Customer        @relation(fields: [customerId], references: [customerId])
+  service  Service         @relation(fields: [serviceId], references: [serviceId])
+  address  CustomerAddress @relation(fields: [addressId], references: [addressId])
+}
+
+model Admin {
+  adminId   Int      @id @default(autoincrement())
+  adminName String
+  email     String   @unique
+  phoneNo   String?  @unique
+  password  String
+  createdAt DateTime @default(now())
+
+}     
+
+  model Technician {
+
+  technicianId   Int      @id @default(autoincrement())
+  technicianName String
+  email          String?  @unique
+  phoneNo        String   @unique
+  password       String
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+}
