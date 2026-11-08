@@ -1,7 +1,12 @@
 import axios from 'axios';
 
-// Get base URL from environment variable or default to localhost
-let apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Get base URL from environment variable or default intelligently:
+// In production without an explicit VITE_API_URL, use relative '/api' for same-origin backend hosting.
+// In local development, fall back to 'http://localhost:5000/api'.
+let apiBaseUrl = import.meta.env.VITE_API_URL;
+if (!apiBaseUrl) {
+  apiBaseUrl = import.meta.env.PROD ? '/api' : 'http://localhost:5000/api';
+}
 
 // Normalize: ensure it ends with /api
 if (apiBaseUrl && !apiBaseUrl.endsWith('/api') && !apiBaseUrl.endsWith('/api/')) {

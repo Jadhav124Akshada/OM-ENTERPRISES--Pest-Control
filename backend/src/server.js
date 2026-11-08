@@ -59,10 +59,10 @@ app.get("/api", (req, res) => {
   });
 });
 
-// SPA fallback: serves index.html for all non-API client routes (Home, Login, Admin, Profile, Bookings, etc.)
-app.get("*", (req, res, next) => {
+// SPA fallback: serves index.html for all non-API client routes (compatible with Express 5 path-to-regexp v8)
+app.use((req, res, next) => {
   if (req.path.startsWith("/api")) {
-    return next();
+    return res.status(404).json({ success: false, message: "API endpoint not found" });
   }
   const indexPath = path.join(frontendDistPath, "index.html");
   res.sendFile(indexPath, (err) => {
