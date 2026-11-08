@@ -1,15 +1,13 @@
 {
-  "name": "om-enterprises",
+  "name": "om-enterprises-backend",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
+    "build": "echo 'Backend ready'",
     "seed": "node src/seed.js",
-    "admin:create": "node src/createAdmin.js",
-    "frontend:install": "npm --prefix frontend install",
-    "frontend:dev": "npm --prefix frontend run dev",
-    "frontend:build": "npm --prefix frontend run build"
+    "admin:create": "node src/createAdmin.js"
   },
   "dependencies": {
     "@prisma/adapter-mariadb": "^7.10.1",
@@ -18,10 +16,10 @@
     "cors": "^2.8.6",
     "dotenv": "^18.0.9",
     "express": "^5.3.0",
-    "jsonwebtoken": "^9.0.3"
+    "jsonwebtoken": "^9.0.3",
+    "prisma": "^7.10.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14",
-    "prisma": "^7.10.1"
+    "nodemon": "^3.1.14"
   }
 }

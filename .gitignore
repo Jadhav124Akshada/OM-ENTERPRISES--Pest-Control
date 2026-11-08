@@ -14,10 +14,6 @@ dist-ssr/
 *.local
 */dist/
 
-# Prisma generated
-/generated/
-*/generated/
-
 # Logs
 npm-debug.log*
 yarn-debug.log*
