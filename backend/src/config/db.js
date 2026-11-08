@@ -17,13 +17,21 @@ if (process.env.DATABASE_URL) {
     const parsed = new URL(process.env.DATABASE_URL);
     dbConfig = {
       host: parsed.hostname,
-      port: Number(parsed.port) || 3306,
+      port: Number(parsed.port) || (parsed.hostname.includes("tidbcloud.com") ? 4000 : 3306),
       user: decodeURIComponent(parsed.username || "root"),
       password: decodeURIComponent(parsed.password || ""),
       database: parsed.pathname.replace(/^\//, "") || "om_enterprises",
     };
   } catch (err) {
     console.warn("Could not parse DATABASE_URL string, falling back to DB_* variables:", err.message);
+  }
+}
+
+// Automatically configure SSL and port 4000 if connecting to TiDB Cloud
+if (dbConfig.host && dbConfig.host.includes("tidbcloud.com")) {
+  dbConfig.ssl = { rejectUnauthorized: true };
+  if (!dbConfig.port || dbConfig.port === 3306) {
+    dbConfig.port = 4000;
   }
 }
 
@@ -36,7 +44,7 @@ export const prisma = new PrismaClient({
 export const connectDB = async () => {
   try {
     await prisma.$connect();
-    console.log("MySQL database connected successfully!");
+    console.log("MySQL/TiDB database connected successfully!");
   } catch (error) {
     console.error("Database connection warning:", error.message);
     console.log("Server will continue running. Please check your DATABASE_URL or database credentials.");
